@@ -1,14 +1,19 @@
+# SYNTAX NOTES ----
+#OBJECTIVE:  
+#DATE FIRST CREATED 9/13/21
+#CREATED BY: ALLAN URIBE 
+
+#PACKAGES NEEDED----
 install.packages("easypackages")
 library('easypackages')
 
-
 install_packages(  'DBI', 'odbc'
                  , 'summarytools', 'tidyverse', 'lubridate'
-                 , 'sqldf', 'data.table','indexNumR')
+                 , 'sqldf', 'data.table','IndexNumR')
 
 libraries(  'DBI', 'odbc'
             , 'summarytools', 'tidyverse', 'lubridate'
-            , 'sqldf', 'data.table','indexNumR')
+            , 'sqldf', 'data.table','IndexNumR')
 options(scipen = 30) # dont display long numbers in R as exponents
 
 # CONNECTIONS TO THE DATASEVERS USED IN THIS PROGRAM----
@@ -29,7 +34,6 @@ con <- dbConnect(
     Database = "ANL1_db",
     Trusted_Connection = "True",
     UID = "qsj2",
-    PWD = rstudioapi::askForPassword("Database password"),
     Port = 1433
 )
 # FUNCTIONS USED IN THIS CODE----
@@ -254,12 +258,114 @@ screener_case_fact$completed_screener <- with(
                   & (fi_assigned_screener == 1)
                   & (case_disposition_cc %notin% c('10','11','12','13')),0,NA)))
 
+screener_case_dup <- subset(screener_case_fact, standid %in% c(319,369,384,394, 398,403,407))
 
-Completed_Screening_forcast <- screener_case_fact %>% 
-    group_by(standid,date_screener=date(screener_case_fact$case_date_cc))%>%
+screener_case_dup$standid <- with(screener_case_dup,
+  ifelse(
+    standid==319,'319_2',
+    ifelse(
+      standid==369,'369_2',
+      ifelse(
+        standid==398, '398_2',
+        ifelse(
+          standid==403, '403_2',
+          ifelse(
+            standid==384, '384_2',
+            ifelse(
+              standid==394, '394_2',
+              ifelse(
+                standid==407, '407_2',0
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+screener_case_fact$standid <-as.character(screener_case_fact$standid)
+
+screener_case_fact<-screener_case_fact[,-29]
+screener_case_dup<-screener_case_dup[,-29]
+
+screener_case_fact1<-rbind(screener_case_fact,screener_case_dup)
+
+Completed_Screening_forcast <- screener_case_fact1 %>% 
+    group_by(standid,date_screener=date(case_date_cc))%>%
     summarise(N_aggragated_obs_screener = n(),
               number_of_complete_screenings =sum(completed_screener,na.rm=T)) %>%
   mutate (cumulative_sum_complete_screenings=(cumsum(number_of_complete_screenings)))
+
+
+'695'<- subset(Completed_Screening_forcast,standid==695)
+
+freq(screener_case_fact$completed_screener[which(screener_case_fact$standid==695)])
+
+
+Completed_Screening_forcast$associated_stand <- with(
+  Completed_Screening_forcast, 
+  ifelse(
+    standid %in% c(428, 345, 407, 331),428,
+    ifelse(
+      standid %in% c(429, 369, 365, 304),429,
+      ifelse(
+        standid %in% c(430, 284, 333, 299),430,
+        ifelse(
+          standid %in% c(431, 412, '394_2', 343),431,
+          ifelse(
+            standid %in% c(432, 378, 396, 394),432,
+            ifelse(
+              standid %in% c(433, '369_2', 371, 366),433,
+              ifelse(
+                standid %in% c(434, '398_2', 355),434,
+                ifelse(
+                  standid %in% c(435, 398, 337, 340, 309),435,
+                  ifelse(
+                    standid %in% c(436, '384_2', 380, '319_2'),436,
+                    ifelse(
+                      standid %in% c(437, 386, 387, 319),437,
+                      ifelse(
+                        standid %in% c(438, 353, 291, 384),438,
+                        ifelse(
+                          standid %in% c(439, 360, 389, 312),439,
+                          ifelse(
+                            standid %in% c(440, 350, 287, 379),440,
+                            ifelse(
+                              standid %in% c(441, '403_2', 376, 329),441,
+                              ifelse(
+                                standid %in% c(442, 403, 388, 297),442,
+                                ifelse(
+                                  standid %in% c(695, 372, 374, '407_2'),695,0
+                                )))))))))))))))))
+
+class(Completed_Screening_forcast$date_screener)
+
+Completed_Screening_forcast <- Completed_Screening_forcast %>% drop_na(date_screener)
+
+Completed_Screening_forcast1 <-  Completed_Screening_forcast %>%
+  mutate(date_screener) %>%
+  complete(date_screener = seq.Date(min(date_screener), max(date_screener), by="day")) %>%
+  group_by (as.character(standid)) %>%
+  fill(N_aggragated_obs_screener, number_of_complete_screenings, cumulative_sum_complete_screenings, associated_stand)
+
+
+
+Completed_Screening_forcast1 <-Completed_Screening_forcast1 %>%
+  group_by (as.character(standid)) %>%
+  mutate(day= row_number()-1)
+
+Completed_Screening_forcast1$week <- week(Completed_Screening_forcast1$date_screener)
+
+Completed_Screening_forcast1 <- Completed_Screening_forcast1 %>% 
+  group_by (as.character(standid)) %>%
+  mutate(week_index = (year(date_screener) - year(min(date_screener)))*52 + 
+           week(date_screener) - week(min(date_screener)))
+
+Completed_Screening_forcast1 <- Completed_Screening_forcast1 %>% 
+  group_by (as.character(standid)) %>%
+  mutate(month_index = (year(date_screener) - year(min(date_screener)))*12 + 
+           month(date_screener) - month(min(date_screener)))
+
 
 
 # Join the case table with the current case table to get the dispositions and more
@@ -419,23 +525,41 @@ MEC_ri7$person_key <- paste(
   ,MEC_ri7$personid
   ,sep = "_"
 )
-MEC_case_fact <- sqldf(
-  SELECT A.caseid, 
+
+MEC_date_keep <- c(
+    "SP_ID"
+  , "SP_Checkin_Time"
 )
 
+MEC_date_query <- paste(
+  "SELECT ", paste(
+    MEC_date_keep, sep = "",collapse= ","),
+  "FROM MEC_Exam_Sum WHERE SP_ID IN (SELECT sp_id FROM VN_ANL_RI1_NH_Person WHERE SDASTAND 
+  in(", paste(needed_stands,sep= ,collapse=","),"))") 
+
+cat(MEC_date_query)
+
+MEC_date <- dbGetQuery(westat_con, MEC_date_query)
+
+MEC_date_unique <- MEC_date %>% 
+  group_by(SP_ID)%>%
+  summarise(exam_date=max(SP_Checkin_Time, na.rm = T))
+
 MEC_completes1 <- sqldf(
-"SELECT A.* ,  B.case_date_cc
+"SELECT A.* ,  B.*
 FROM MEC_completes as A 
-LEFT JOIN screener_case_fact as B 
-ON A.person_key =B.person_key")
+LEFT JOIN MEC_date_unique as B 
+ON A.spid =B.SP_ID")
 
 freq(MEC_completes$MEC_examined)
+class(MEC_completes1$exam_date)
+MEC_completes1$exam_date1 <-as.Date(MEC_completes1$exam_date)
+class(MEC_completes1$exam_date1)
 
+MEC_completes1 <- subset(MEC_completes1,MEC_examined==1 )
 
-MEC_completes1 <- subset(MEC_completes1,completed_sp==1 )
-
-Completed_MECexam_forcast <- MEC_completes %>% 
-    group_by(standid_p,date_MEC=date(MEC_completes$appt_arrival_DT))%>%
+Completed_MECexam_forcast <- MEC_completes1 %>% 
+    group_by(standid_p,date_MEC=date(MEC_completes1$exam_date1))%>%
     summarise(N_aggragated_obs_MEC = n(),
               number_of_complete_MECexams =sum(MEC_examined,na.rm=T)) %>%
     mutate (cumulative_sum_complete_MECexams=(cumsum(number_of_complete_MECexams)))
@@ -568,12 +692,41 @@ Completed_MECexam_forcast1 <- Completed_MECexam_forcast1 %>%
   mutate(month_index = (year(date_MEC) - year(min(date_MEC)))*12 + 
            month(date_MEC) - month(min(date_MEC)))
 
+stand_demensions <- read.csv(file = "L:/2021/DHANES dashboard/V0.5/Flat files/stand_demensions.csv")
 
+stand_demensions_dup <- subset(stand_demensions, standid %in% c(319,369,384,394, 398,403,407))
+
+stand_demensions_dup$standid <- with(stand_demensions_dup,
+                                  ifelse(
+                                    standid==319,'319_2',
+                                    ifelse(
+                                      standid==369,'369_2',
+                                      ifelse(
+                                        standid==398, '398_2',
+                                        ifelse(
+                                          standid==403, '403_2',
+                                          ifelse(
+                                            standid==384, '384_2',
+                                            ifelse(
+                                              standid==394, '394_2',
+                                              ifelse(
+                                                standid==407, '407_2',0
+                                              )
+                                            )
+                                          )
+                                        )
+                                      )
+                                    )
+                                  )
+)
+
+stand_demensions1 <- rbind(stand_demensions,stand_demensions_dup)
+stand_demensions1$standid <-as.character(stand_demensions1$standid)
 
 fwrite(Completed_MECexam_forcast1, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MECexam_forcast.csv")
 fwrite(Completed_spint_forcast1, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_spint_forcast.csv")
-fwrite(Completed_Screening_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast.csv")
-
+fwrite(Completed_Screening_forcast1, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast.csv")
+fwrite(stand_demensions1, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/stand_demensions.csv")
 
 
     
