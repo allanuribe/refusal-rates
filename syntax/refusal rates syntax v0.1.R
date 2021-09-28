@@ -56,6 +56,16 @@ needed_stands <- c(284, 287, 291 ,297, 299, 304, 309, 312
 #' status has to be joined at the DU level.  
 
 stand_demensions <- read.csv(file = "L:/2021/DHANES dashboard/V0.5/Flat files/stand_demensions.csv")
+
+real_stand_start_date <- dbGetQuery(
+  westat_con, "SELECT stand_ID, stand_DT
+  FROM NH_Stand_DT_Det WHERE stand_DT_type =6")
+
+stand_demensions <- sqldf("SELECT A.*, B.Stand_DT
+                          FROM stand_demensions as A
+                          LEFT JOIN real_stand_start_date as B 
+                          on A.standid=B.stand_ID")
+
 stand_demensions_dup <- subset(stand_demensions, standid %in% c(319,369,384,394, 398,403,407))
 
  stand_demensions_dup$standid <- with(stand_demensions_dup,
@@ -195,8 +205,13 @@ screener_case_fact1$completed_screener <- with(
 stand_demensions2 <- read.csv(
   file = "L:/2021/DHANES dashboard/V0.5/Flat files/stand_demensions.csv")
 
+stand_demensions2 <- sqldf("SELECT A.*, B.Stand_DT
+                          FROM stand_demensions2 as A
+                          LEFT JOIN real_stand_start_date as B 
+                          on A.standid=B.stand_ID")
+
 screener_case_fact2 <- sqldf('SELECT A.* 
-                   , B.stand_start_date 
+                   , B.stand_start_date, B.stand_DT 
                    FROM screener_case_fact1 as A 
                    LEFT JOIN stand_demensions2 as B
                    ON A.standid=B.standid')
@@ -215,7 +230,7 @@ screener_case_fact4 <-  screener_case_fact3 %>%
   fill(standid,stand_start_date)
 
 screener_case_fact4$days_index <- (as.Date(screener_case_fact4$case_date_cc) 
-                                   - as.Date(screener_case_fact4$stand_start_date))
+                                   - as.Date(screener_case_fact4$stand_DT))
 
 screener_case_fact4$days_index <- ifelse(
   screener_case_fact4$days_index <1,1,screener_case_fact4$days_index
@@ -310,7 +325,9 @@ Completed_Screening_forcast$associated_stand <- with(
 
 remove(screener_case_dup,screener_case_fact4,Completed_Screening_forcast,Completed_Screening_forcast1)
 
-fwrite(Completed_Screening_forcast1, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast1.csv")
+Completed_Screening_forcast <- Completed_Screening_forcast %>% drop_na(days_index)
+
+fwrite(Completed_Screening_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast1.csv")
 
 ####----
 
@@ -415,16 +432,14 @@ SPint_case_fact$completed_sp <- with(
 
 SPint_case_fact1 <- subset(SPint_case_fact, completed_sp==1)
 
-stand_demensions2 <- read.csv(file = "L:/2021/DHANES dashboard/V0.5/Flat files/stand_demensions.csv")
-
 SPint_case_fact2 <- sqldf('SELECT A.* 
-                   , B.stand_start_date 
+                   , B.stand_start_date, B.stand_DT 
                    FROM SPint_case_fact1 as A 
                    LEFT JOIN stand_demensions2 as B
                    ON A.standid=B.standid')
 
 SPint_case_fact2$case_date_cc <-as.Date(SPint_case_fact2$case_date_cc,tz="")
-SPint_case_fact2$stand_start_date <-as.Date(SPint_case_fact2$stand_start_date,tz="")
+SPint_case_fact2$stand_DT <-as.Date(SPint_case_fact2$stand_DT,tz="")
 
 SPint_case_fact3 <-  SPint_case_fact2 %>%
   group_by (standid) %>%
@@ -433,7 +448,7 @@ SPint_case_fact3 <-  SPint_case_fact2 %>%
   fill(standid,stand_start_date)
 
 SPint_case_fact3$days_index <- (as.Date(SPint_case_fact3$case_date_cc) - 
-                                  as.Date(SPint_case_fact3$stand_start_date))
+                                  as.Date(SPint_case_fact3$stand_DT))
 
 SPint_case_fact3$days_index <- ifelse(
   SPint_case_fact3$days_index <1,1,SPint_case_fact3$days_index
@@ -623,15 +638,16 @@ MEC_completes1$exam_date1 <-as.Date(MEC_completes1$exam_date)
 MEC_completes1 <-MEC_completes1[,-c(20,21)]
 
 MEC_completes2 <- sqldf('SELECT A.* 
-                   , B.stand_start_date 
+                   , B.stand_start_date, B.stand_DT 
                    FROM MEC_completes1 as A 
                    LEFT JOIN stand_demensions2 as B
                    ON A.standid_p=B.standid')
 
-MEC_completes2$stand_start_date <-as.Date(MEC_completes2$stand_start_date)
+MEC_completes2$stand_DT <-as.Date(MEC_completes2$stand_DT)
+MEC_completes2$exam_date1 <-as.Date(MEC_completes2$exam_date1)
 
 MEC_completes3 <- subset(MEC_completes2, !is.na(exam_date1),)
-MEC_completes4 <- MEC_completes3[which((MEC_completes3$exam_date2>0)),]
+MEC_completes4 <- MEC_completes3[which((MEC_completes3$exam_date1>0)),]
 
 MEC_completes5 <-  MEC_completes4 %>%
   group_by (standid_p) %>%
@@ -641,7 +657,7 @@ MEC_completes5 <-  MEC_completes4 %>%
 
 
 MEC_completes5$days_index <- (as.Date(MEC_completes5$exam_date1) - 
-                                as.Date(MEC_completes5$stand_start_date))
+                                as.Date(MEC_completes5$status_DT))
 
 MEC_completes5$days_index <- ifelse(
   MEC_completes5$days_index <1,1,MEC_completes5$days_index
@@ -728,7 +744,7 @@ Completed_MEC_forcast$associated_stand <- with(
 
 
 
-Completed_MEC_forcast1 <- Completed_MEC_forcast %>% drop_na(date_MEC)
+Completed_MEC_forcast1 <- Completed_MEC_forcast %>% drop_na(days_index)
 
 
 
