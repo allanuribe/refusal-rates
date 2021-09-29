@@ -550,6 +550,7 @@ NH_Appointment_keep <- c(
   , "SP_ID"
   , "appt_type"
   , "stand_ID"
+  , "session_ID"
   , "appt_status"
   , "last_updated_empid"
   , "status_DT"
@@ -559,10 +560,23 @@ NH_Appointment_keep <- c(
 NH_Appointment_query <- paste(
   "SELECT ", paste(
     NH_Appointment_keep, sep = "",collapse= ","),
-  "FROM V_NH_Appointment where stand_ID in(", paste(needed_stands,sep= ,collapse=","),")")
+  "FROM V_NH_Appointment where appt_type = 1 and stand_ID in(", paste(needed_stands,sep= ,collapse=","),")")
 
 cat(NH_Appointment_query)
 MEC_NH_Appointment <- dbGetQuery(westat_con, NH_Appointment_query)
+
+correct_date_query<- paste("SELECT session_ID,stand_ID 
+                                    , session_DT,session_type FROM V_NH_Session 
+                                    WHERE session_id in
+                                    (SELECT Session_id FROM V_NH_Appointment where 
+                                    appt_type = 1 and stand_ID 
+                                    in(", paste(needed_stands,sep= ,collapse=","),"))")
+
+MEC_exam_date_correct <- dbGetQuery(westat_con,correct_date_query)
+
+MEC_NH_Appointment <-sqldf("SELECT A.*, B.session_DT FROM MEC_NH_Appointment as A
+                           LEFT JOIN MEC_exam_date_correct as B
+                           ON A.session_id =B.session_id")
 
 
 MEC_ri7_query <- paste(
@@ -579,7 +593,7 @@ MEC_ri7 <- dbGetQuery(westat_con, MEC_ri7_query)
 MEC_completes <- sqldf(
     "SELECT A.*, B.* 
     FROM person_ri1 as A 
-    LEFT JOIN NH_Appointment as B
+    LEFT JOIN MEC_NH_Appointment as B
     ON A.spid = B.SP_ID"
 )
 
@@ -594,22 +608,7 @@ MEC_completes$MEC_examined <- with(MEC_completes,
 
 
 
-MEC_curr_case_query <- paste(
-  "SELECT ", paste(
-    curr_case_keep, sep = "",collapse= ","),
-  "FROM V_Current_Case WHERE case_id IN (SELECT SCACASE FROM ANL_RI7_SAM_Case WHERE STAQTYP in(5) and SDASTAND in(", paste(needed_stands,sep= ,collapse=","),"))")
 
-cat(MEC_curr_case_query)
-MEC_curr_case <- dbGetQuery(westat_con, SPint_curr_case_query)
-
-MEC_ri7$person_key <- paste(
-  MEC_ri7$standid
-  ,MEC_ri7$segmentid
-  ,MEC_ri7$dwellingid
-  ,MEC_ri7$familyid
-  ,MEC_ri7$personid
-  ,sep = "_"
-)
 
 MEC_date_keep <- c(
     "SP_ID"
@@ -626,44 +625,43 @@ cat(MEC_date_query)
 
 MEC_date <- dbGetQuery(westat_con, MEC_date_query)
 
+ 
 
-
-
-MEC_date_unique <- MEC_date %>% 
-  group_by(SP_ID)%>%
-  summarise(exam_date=max(SP_Checkin_Time, na.rm = T))
+remove(MEC_completes1)
 
 MEC_completes1 <- sqldf(
-"SELECT A.* ,  B.*
+"SELECT A.* ,  B.SP_CHeckin_Time
 FROM MEC_completes as A 
-LEFT JOIN MEC_date_unique as B 
+LEFT JOIN MEC_date as B 
 ON A.spid =B.SP_ID")
 
-MEC_completes1$exam_date1 <-as.Date(MEC_completes1$exam_date)
+MEC_completes1$exam_date <-as.Date(MEC_completes1$SP_Checkin_Time)
 
-MEC_completes1 <-MEC_completes1[,-c(20,21)]
 
 MEC_completes2 <- sqldf('SELECT A.* 
                    , B.stand_start_date, B.stand_DT 
                    FROM MEC_completes1 as A 
-                   LEFT JOIN stand_demensions2 as B
+                   LEFT JOIN stand_demensions1 as B
                    ON A.standid_p=B.standid')
 
 MEC_completes2$stand_DT <-as.Date(MEC_completes2$stand_DT)
 MEC_completes2$exam_date1 <-as.Date(MEC_completes2$exam_date1)
+MEC_completes2$session_DT1 <-as.Date(MEC_completes2$session_DT)
 
-MEC_completes3 <- subset(MEC_completes2, !is.na(exam_date1),)
-MEC_completes4 <- MEC_completes3[which((MEC_completes3$exam_date1>0)),]
+
+
+MEC_completes3 <- subset(MEC_completes2, !is.na(session_DT1),)
+MEC_completes4 <- MEC_completes3[which((MEC_completes3$session_DT1>0)),]
 
 MEC_completes5 <-  MEC_completes4 %>%
   group_by (standid_p) %>%
-  complete(exam_date1 = seq.Date(min(as.Date(exam_date1)), 
-                                   max(as.Date(exam_date1)), by=1)) %>%
-  fill(standid_p,stand_start_date)
+  complete(session_DT1 = seq.Date(min(as.Date(session_DT1)), 
+                                   max(as.Date(session_DT1)), by=1)) %>%
+  fill(standid_p,stand_start_date, stand_DT)
 
 
-MEC_completes5$days_index <- (as.Date(MEC_completes5$exam_date1) - 
-                                as.Date(MEC_completes5$status_DT))
+MEC_completes5$days_index <- (as.Date(MEC_completes5$session_DT1) - 
+                                as.Date(MEC_completes5$stand_DT))
 
 MEC_completes5$days_index <- ifelse(
   MEC_completes5$days_index <1,1,MEC_completes5$days_index
@@ -672,8 +670,8 @@ MEC_completes5$days_index <- ifelse(
 MEC_completes5$week_index <- as.numeric(floor(MEC_completes5$days_index/7))+1
 MEC_completes5$month_index <- as.numeric(floor(MEC_completes5$days_index/30.4375))+1
 
-MEC_completes5$MEC_examined <-ifelse(
-  is.na(MEC_completes5$MEC_examined),0,MEC_completes5$MEC_examined)
+#MEC_completes5$MEC_examined <-ifelse(
+ # is.na(MEC_completes5$MEC_examined),0,MEC_completes5$MEC_examined)
 
 MEC_completes5_dup <- subset(MEC_completes5, standid_p %in% c(319,369,384,394, 398,403,407))
 
@@ -706,7 +704,7 @@ MEC_completes5$standid_p <-as.character(MEC_completes5$standid_p)
 MEC_completes6<-rbind(MEC_completes5,MEC_completes5_dup)
 
 Completed_MEC_forcast <- MEC_completes6 %>% 
-  group_by(standid_p,date_MEC=date(exam_date1))%>%
+  group_by(standid_p,date_MEC=date(session_DT1))%>%
   summarise(days_index=max(days_index), week_index=max(week_index),
             month_index=max(month_index), N_aggragated_obs_MEC = n(),
             number_of_complete_MEC =sum(MEC_examined,na.rm=T)) %>%
@@ -750,20 +748,35 @@ Completed_MEC_forcast$associated_stand <- with(
 
 
 
-Completed_MEC_forcast1 <- Completed_MEC_forcast %>% drop_na(days_index)
+#Completed_MEC_forcast1 <- Completed_MEC_forcast %>% drop_na(days_index)
 
 
 
 remove(screener_case_dup,screener_case_fact4,Completed_Screening_forcast,Completed_Screening_forcast1)
 
-fwrite(Completed_MEC_forcast1, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.csv")
+fwrite(Completed_MEC_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.csv")
 
 
 
 
 
 
+MEC_curr_case_query <- paste(
+  "SELECT ", paste(
+    curr_case_keep, sep = "",collapse= ","),
+  "FROM V_Current_Case WHERE case_id IN (SELECT SCACASE FROM ANL_RI7_SAM_Case WHERE STAQTYP in(5) and SDASTAND in(", paste(needed_stands,sep= ,collapse=","),"))")
 
+cat(MEC_curr_case_query)
+MEC_curr_case <- dbGetQuery(westat_con, SPint_curr_case_query)
+
+MEC_ri7$person_key <- paste(
+  MEC_ri7$standid
+  ,MEC_ri7$segmentid
+  ,MEC_ri7$dwellingid
+  ,MEC_ri7$familyid
+  ,MEC_ri7$personid
+  ,sep = "_"
+)
 
 
 
