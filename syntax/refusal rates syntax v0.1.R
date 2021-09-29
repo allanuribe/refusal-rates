@@ -66,6 +66,38 @@ stand_demensions <- sqldf("SELECT A.*, B.Stand_DT
                           LEFT JOIN real_stand_start_date as B 
                           on A.standid=B.stand_ID")
 
+person_ri1_keep <- c(
+  "SP_ID as spid"
+  , "SDASTAND as standid_p"
+  , "SDASEGMT as segmentid_p"
+  , "SDASERAL as dwellingid_p"
+  , "SCAFAMNO as familyid_p"
+  , "SCAPERSN as personid_p"
+  , "STAINTDT as interview_date_p"
+  , "RIAPCODE as person_code_p"
+  , "SCQCK305 as SP_selection_status_p"
+)
+person_ri1_query <- paste(
+  "SELECT ", paste(
+    person_ri1_keep, sep = "",collapse= ","),
+  "FROM VN_ANL_RI1_NH_Person where SDASTAND in(", paste(needed_stands,sep= ,collapse=","),")")
+
+cat(person_ri1_query)
+person_ri1 <- dbGetQuery(westat_con, person_ri1_query)
+
+person_ri1$spidentified <- with(person_ri1, 
+                                ifelse(SP_selection_status_p %in% c(1,4) & person_code_p == 2,1,0)) 
+
+spidentified_sum<-person_ri1 %>% 
+  group_by(standid_p) %>%
+  summarise(total_SP_identified=sum(spidentified))
+
+
+stand_demensions <- sqldf("SELECT A.*, B.total_sp_identified
+                          FROM stand_demensions as A
+                          LEFT JOIN spidentified_sum as B 
+                          on A.standid=B.standid_p")
+
 stand_demensions_dup <- subset(stand_demensions, standid %in% c(319,369,384,394, 398,403,407))
 
  stand_demensions_dup$standid <- with(stand_demensions_dup,
@@ -358,24 +390,6 @@ SPint_curr_case_query <- paste(
 cat(SPint_curr_case_query)
 SPint_curr_case <- dbGetQuery(westat_con, SPint_curr_case_query)
 
-person_ri1_keep <- c(
-    "SP_ID as spid"
-    , "SDASTAND as standid_p"
-    , "SDASEGMT as segmentid_p"
-    , "SDASERAL as dwellingid_p"
-    , "SCAFAMNO as familyid_p"
-    , "SCAPERSN as personid_p"
-    , "STAINTDT as interview_date_p"
-    , "RIAPCODE as person_code_p"
-    , "SCQCK305 as SP_selection_status_p"
-)
-person_ri1_query <- paste(
-    "SELECT ", paste(
-        person_ri1_keep, sep = "",collapse= ","),
-    "FROM VN_ANL_RI1_NH_Person where SDASTAND in(", paste(needed_stands,sep= ,collapse=","),")")
-
-cat(person_ri1_query)
-person_ri1 <- dbGetQuery(westat_con, person_ri1_query)
 
 
 # form joining at the dwelling level 
