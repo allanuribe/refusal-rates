@@ -4,12 +4,12 @@
 #CREATED BY: ALLAN URIBE 
 
 #PACKAGES NEEDED----
-install.packages("easypackages")
+install.packages("easypackages", repos='http://cran.us.r-project.org')
 library('easypackages')
 
 install_packages(  'DBI', 'odbc'
                  , 'summarytools', 'tidyverse', 'lubridate'
-                 , 'sqldf', 'data.table','IndexNumR')
+                 , 'sqldf', 'data.table','IndexNumR', repos='http://cran.us.r-project.org')
 
 libraries(  'DBI', 'odbc'
             , 'summarytools', 'tidyverse', 'lubridate'
@@ -25,7 +25,7 @@ westat_con <- dbConnect(
     Database = "MSDELIVR_db",
     UID = "NCHSDASH",
     PWD = rstudioapi::askForPassword("Database password")
-)
+    )
 
 con <- dbConnect(
     odbc(),
@@ -254,6 +254,8 @@ screener_case_fact3$stand_start_date <-as.Date(screener_case_fact3$stand_start_d
 
 screener_case_fact3 <- screener_case_fact3[,-c(5:6,8,10:12,14)]
 
+screener_case_fact3 <- subset(screener_case_fact3, !is.na(case_date_cc),)
+
 screener_case_fact4 <-  screener_case_fact3 %>%
   group_by (standid) %>%
   complete(case_date_cc = seq.Date(min(as.Date(case_date_cc)), 
@@ -453,7 +455,7 @@ SPint_case_fact2 <- sqldf('SELECT A.*
 SPint_case_fact2$case_date_cc <-as.Date(SPint_case_fact2$case_date_cc,tz="")
 SPint_case_fact2$stand_DT <-as.Date(SPint_case_fact2$stand_DT,tz="")
 
-
+SPint_case_fact2 <- subset(SPint_case_fact2, !is.na(case_date_cc),)
 
 SPint_case_fact3 <-  SPint_case_fact2 %>%
   group_by (standid) %>%
@@ -554,7 +556,7 @@ Completed_sp_forcast$associated_stand <- with(
 remove(SPint_ri7,SPint_curr_case,SPint_case_fact, SPint_case_fact2, SPint_case_fact3,
        SPint_case_dup)
 
-fwrite(Completed_sp_forcast1, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_sp_forcast.csv")
+fwrite(Completed_sp_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_sp_forcast.csv")
 
 #####
 
@@ -641,7 +643,7 @@ MEC_date <- dbGetQuery(westat_con, MEC_date_query)
 
  
 
-remove(MEC_completes1)
+#remove(MEC_completes1)
 
 MEC_completes1 <- sqldf(
 "SELECT A.* ,  B.SP_CHeckin_Time
@@ -659,7 +661,7 @@ MEC_completes2 <- sqldf('SELECT A.*
                    ON A.standid_p=B.standid')
 
 MEC_completes2$stand_DT <-as.Date(MEC_completes2$stand_DT)
-MEC_completes2$exam_date1 <-as.Date(MEC_completes2$exam_date1)
+MEC_completes2$exam_date1 <-as.Date(MEC_completes2$exam_date)
 MEC_completes2$session_DT1 <-as.Date(MEC_completes2$session_DT)
 
 
@@ -766,6 +768,6 @@ Completed_MEC_forcast$associated_stand <- with(
 
 
 
-remove(screener_case_dup,screener_case_fact4,Completed_Screening_forcast,Completed_Screening_forcast1)
+#remove(screener_case_dup,screener_case_fact4,Completed_Screening_forcast,Completed_Screening_forcast1)
 
 fwrite(Completed_MEC_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.csv")
