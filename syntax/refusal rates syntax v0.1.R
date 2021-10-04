@@ -21,7 +21,7 @@ options(scipen = 30) # dont display long numbers in R as exponents
 westat_con <- dbConnect(
     odbc(),
     Driver = "ODBC Driver 17 for SQL Server",
-    Server = "158.111.202.203",
+    Server = "158.111.202.203", #nhqprod3
     Database = "MSDELIVR_db",
     UID = "NCHSDASH",
     PWD = rstudioapi::askForPassword("Database password")
@@ -770,4 +770,14 @@ Completed_MEC_forcast$associated_stand <- with(
 
 #remove(screener_case_dup,screener_case_fact4,Completed_Screening_forcast,Completed_Screening_forcast1)
 
-fwrite(Completed_MEC_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.csv")
+fwrite(Completed_MEC_forcast, file= 
+"C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.csv")
+
+openxlsx::write.xlsx(Completed_Screening_forcast, "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.xlsx")
+openxlsx::write.xlsx(Completed_sp_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_sp_forcast.xlsx")
+openxlsx::write.xlsx(Completed_Screening_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast1.xlsx")
+
+test <- createWorkbook() 
+addWorksheet(test,"S1")
+writeDataTable(test,"S1",x=Completed_Screening_forcast)
+saveWorkbook(test, file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast5.xlsx',T)
