@@ -9,11 +9,11 @@ library('easypackages')
 
 install_packages(  'DBI', 'odbc'
                  , 'summarytools', 'tidyverse', 'lubridate'
-                 , 'sqldf', 'data.table','IndexNumR', repos='http://cran.us.r-project.org')
+                 , 'sqldf', 'data.table','IndexNumR','openxlsx', repos='http://cran.us.r-project.org')
 
 libraries(  'DBI', 'odbc'
             , 'summarytools', 'tidyverse', 'lubridate'
-            , 'sqldf', 'data.table','IndexNumR')
+            , 'sqldf', 'data.table','IndexNumR','openxlsx')
 options(scipen = 30) # dont display long numbers in R as exponents
 
 # CONNECTIONS TO THE DATASEVERS USED IN THIS PROGRAM----
@@ -21,7 +21,7 @@ options(scipen = 30) # dont display long numbers in R as exponents
 westat_con <- dbConnect(
     odbc(),
     Driver = "ODBC Driver 17 for SQL Server",
-    Server = "158.111.202.203", #nhqprod3
+    Server =  "nhqprod3", # "158.111.202.203"
     Database = "MSDELIVR_db",
     UID = "NCHSDASH",
     PWD = rstudioapi::askForPassword("Database password")
@@ -132,6 +132,8 @@ stand_demensions1 <- stand_demensions1[,-c(5:10,12)]
 fwrite(stand_demensions1, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/stand_demensions.csv")
 
 remove(stand_demensions,stand_demensions_dup,real_stand_start_date)
+
+
 
 # screener casse records.  list of variables to keep when we import
 ri7_var_keep <- c(
@@ -356,9 +358,24 @@ Completed_Screening_forcast$associated_stand <- with(
                                   standid %in% c(695, 372, 374, '407_2'),695,0
                                 )))))))))))))))))
 
+Completed_Screening_forcast$RID <- seq.int(nrow(Completed_Screening_forcast))
+
 remove(screener_case_dup,screener_case_fact3,screener_case_fact4)
 
-fwrite(Completed_Screening_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast1.csv")
+fwrite(
+  Completed_Screening_forcast, 
+  file= 
+    "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast1.csv")
+
+openxlsx::write.xlsx(
+  Completed_Screening_forcast, 
+  "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.xlsx"
+  ,overwrite = T)
+Completed_Screening_forcast_SPL <- createWorkbook() 
+addWorksheet(Completed_Screening_forcast_SPL,"S1")
+writeDataTable(Completed_Screening_forcast_SPL,"S1",x=Completed_Screening_forcast)
+saveWorkbook(Completed_Screening_forcast_SPL, file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast_SPL.xlsx',T)
+
 
 ####----
 
@@ -551,12 +568,24 @@ Completed_sp_forcast$associated_stand <- with(
                                 )))))))))))))))))
 
 
-
+Completed_sp_forcast$RID <- seq.int(nrow(Completed_sp_forcast))
 
 remove(SPint_ri7,SPint_curr_case,SPint_case_fact, SPint_case_fact2, SPint_case_fact3,
        SPint_case_dup)
 
 fwrite(Completed_sp_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_sp_forcast.csv")
+
+openxlsx::write.xlsx(Completed_sp_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_sp_forcast.xlsx"
+                     ,overwrite = T)
+
+
+Completed_sp_forcast_SPL <- createWorkbook() 
+addWorksheet(Completed_sp_forcast_SPL,"S1")
+writeDataTable(Completed_sp_forcast_SPL,"S1",x=Completed_sp_forcast)
+saveWorkbook(
+  Completed_sp_forcast_SPL
+  , file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_sp_forcast_SPL.xlsx',T)
+
 
 #####
 
@@ -770,14 +799,21 @@ Completed_MEC_forcast$associated_stand <- with(
 
 #remove(screener_case_dup,screener_case_fact4,Completed_Screening_forcast,Completed_Screening_forcast1)
 
+Completed_MEC_forcast$RID <- seq.int(nrow(Completed_MEC_forcast))
+
 fwrite(Completed_MEC_forcast, file= 
 "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.csv")
 
-openxlsx::write.xlsx(Completed_Screening_forcast, "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.xlsx")
-openxlsx::write.xlsx(Completed_sp_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_sp_forcast.xlsx")
-openxlsx::write.xlsx(Completed_Screening_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast1.xlsx")
+openxlsx::write.xlsx(
+  Completed_MEC_forcast
+  , file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.xlsx"
+  ,overwrite = T)
 
-test <- createWorkbook() 
-addWorksheet(test,"S1")
-writeDataTable(test,"S1",x=Completed_Screening_forcast)
-saveWorkbook(test, file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast5.xlsx',T)
+
+
+Completed_MEC_forcast_SPL <- createWorkbook() 
+addWorksheet(Completed_MEC_forcast_SPL,"S1")
+writeDataTable(Completed_MEC_forcast_SPL,"S1",x=Completed_MEC_forcast)
+saveWorkbook(
+  Completed_MEC_forcast_SPL
+  , file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast_SPL.xlsx',T)
