@@ -1,6 +1,8 @@
 # SYNTAX NOTES ----
-#OBJECTIVE:  
+#OBJECTIVE:  to create the tables needed to feed reletive longitudinal data to a powerBI 
+#dashboard for leadership to view the current completion rates
 #DATE FIRST CREATED 9/13/21
+#DATE UPDATED:10/12/21
 #CREATED BY: ALLAN URIBE 
 
 #PACKAGES NEEDED----
@@ -9,11 +11,11 @@ library('easypackages')
 
 install_packages(  'DBI', 'odbc'
                  , 'summarytools', 'tidyverse', 'lubridate'
-                 , 'sqldf', 'data.table','IndexNumR','openxlsx', repos='http://cran.us.r-project.org')
+                 , 'sqldf', 'data.table','IndexNumR','openxlsx', 'writexl', 'WriteXLS', repos='http://cran.us.r-project.org')
 
 libraries(  'DBI', 'odbc'
             , 'summarytools', 'tidyverse', 'lubridate'
-            , 'sqldf', 'data.table','IndexNumR','openxlsx')
+            , 'sqldf', 'data.table','IndexNumR','openxlsx', 'writexl', 'WriteXLS')
 options(scipen = 30) # dont display long numbers in R as exponents
 
 # CONNECTIONS TO THE DATASEVERS USED IN THIS PROGRAM----
@@ -129,7 +131,24 @@ stand_demensions1$stand_start_date<- as.Date(stand_demensions1$stand_start_date)
 stand_demensions1$stand_DT<- as.Date(stand_demensions1$stand_DT)
 stand_demensions1$stand_end_date<- as.Date(stand_demensions1$stand_end_date)
 stand_demensions1 <- stand_demensions1[,-c(5:10,12)]
+
+stand_demensions1$active <-with(
+  stand_demensions1
+  , ifelse( standid <428,0,1))
+
 fwrite(stand_demensions1, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/stand_demensions.csv")
+
+openxlsx::write.xlsx(
+  Completed_Screening_forcast, 
+  "C:/Users/qsj2/OneDrive - CDC/powerbisources/2021/responseRates/stand_demensions1.xlsx"
+  ,overwrite = T)
+
+stand_demensions1_W <- createWorkbook() 
+addWorksheet(stand_demensions1_W,"S1")
+writeDataTable(stand_demensions1_W,"S1",x=stand_demensions1)
+saveWorkbook(stand_demensions1_W, file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/stand_demensions1_W.xls',T)
+
+writexl::write_xlsx(list(stand_demensions1=stand_demensions1), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/stand_demensions1_W.xlsx")
 
 remove(stand_demensions,stand_demensions_dup,real_stand_start_date)
 
@@ -369,12 +388,42 @@ fwrite(
 
 openxlsx::write.xlsx(
   Completed_Screening_forcast, 
-  "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.xlsx"
+  "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast1.xlsx"
   ,overwrite = T)
 Completed_Screening_forcast_SPL <- createWorkbook() 
 addWorksheet(Completed_Screening_forcast_SPL,"S1")
 writeDataTable(Completed_Screening_forcast_SPL,"S1",x=Completed_Screening_forcast)
 saveWorkbook(Completed_Screening_forcast_SPL, file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast_SPL.xlsx',T)
+
+writexl::write_xlsx(list(Completed_Screening_forcast=Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast_W.xlsx")
+
+
+R10_Completed_Screening_forcast <- Completed_Screening_forcast %>%
+  group_by(standid)%>%
+  arrange(date_screener)%>%
+  slice(1:(n()-10))
+
+R20_Completed_Screening_forcast <- Completed_Screening_forcast %>%
+  arrange(date_screener)%>%
+  slice(1:(n()-20))
+
+R30_Completed_Screening_forcast <- Completed_Screening_forcast %>%
+  arrange(date_screener)%>%
+  slice(1:(n()-30))
+
+R40_Completed_Screening_forcast <- Completed_Screening_forcast %>%
+  arrange(date_screener)%>%
+  slice(1:(n()-40))
+
+R50_Completed_Screening_forcast <- Completed_Screening_forcast %>%
+  arrange(date_screener)%>%
+  slice(1:(n()-50))
+
+writexl::write_xlsx(list(R10_Completed_Screening_forcast=R10_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R10_Completed_Screening_forcast_W.xlsx")
+writexl::write_xlsx(list(R20_Completed_Screening_forcast=R20_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R20_Completed_Screening_forcast_W.xlsx")
+writexl::write_xlsx(list(R30_Completed_Screening_forcast=R30_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R30_Completed_Screening_forcast_W.xlsx")
+writexl::write_xlsx(list(R40_Completed_Screening_forcast=R40_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R40_Completed_Screening_forcast_W.xlsx")
+writexl::write_xlsx(list(R50_Completed_Screening_forcast=R50_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R50_Completed_Screening_forcast_W.xlsx")
 
 
 ####----
@@ -585,6 +634,21 @@ writeDataTable(Completed_sp_forcast_SPL,"S1",x=Completed_sp_forcast)
 saveWorkbook(
   Completed_sp_forcast_SPL
   , file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_sp_forcast_SPL.xlsx',T)
+
+writexl::write_xlsx(list(Completed_sp_forcast=Completed_sp_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_sp_forcast_W.xlsx")
+
+
+
+R10_Completed_sp_forcast <- Completed_sp_forcast %>%
+  arrange(date_sp)%>%
+  slice(1:(n()-10))
+
+R20_Completed_sp_forcast <- Completed_sp_forcast %>%
+  arrange(date_sp)%>%
+  slice(1:(n()-20))
+
+writexl::write_xlsx(list(R10_Completed_sp_forcast=R10_Completed_sp_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R10_Completed_sp_forcast_W.xlsx")
+writexl::write_xlsx(list(R20_Completed_sp_forcast=R20_Completed_sp_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R20_Completed_sp_forcast_W.xlsx")
 
 
 #####
@@ -809,11 +873,24 @@ openxlsx::write.xlsx(
   , file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.xlsx"
   ,overwrite = T)
 
-
-
 Completed_MEC_forcast_SPL <- createWorkbook() 
 addWorksheet(Completed_MEC_forcast_SPL,"S1")
 writeDataTable(Completed_MEC_forcast_SPL,"S1",x=Completed_MEC_forcast)
 saveWorkbook(
   Completed_MEC_forcast_SPL
   , file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast_SPL.xlsx',T)
+
+writexl::write_xlsx(list(Completed_MEC_forcast=Completed_MEC_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast_W.xlsx")
+
+
+R10_Completed_MEC_forcast <- Completed_MEC_forcast %>%
+  arrange(date_MEC)%>%
+  slice(1:(n()-10))
+
+R20_Completed_MEC_forcast <- Completed_MEC_forcast %>%
+  arrange(date_MEC)%>%
+  slice(1:(n()-20))
+
+writexl::write_xlsx(list(R10_Completed_MEC_forcast=R10_Completed_MEC_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R10_Completed_MEC_forcast_W.xlsx")
+writexl::write_xlsx(list(R20_Completed_MEC_forcast=R20_Completed_MEC_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R20_Completed_MEC_forcast_W.xlsx")
+
