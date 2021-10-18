@@ -136,6 +136,23 @@ stand_demensions1$active <-with(
   stand_demensions1
   , ifelse( standid <428,0,1))
 
+stand_targets <- dbGetQuery(
+  westat_con, "SELECT 
+  stand_ID as standid
+  ,SPTARGET
+  ,EXTARGET as MEC_exam_target
+  FROM SAM_Stand")
+
+stand_demensions1 <- sqldf(
+"SELECT A.*
+, B.SPTARGET
+, B.MEC_exam_target 
+FROM stand_demensions1 as A 
+LEFT JOIN stand_targets as B 
+on A.standid=B.standid")
+
+
+
 fwrite(stand_demensions1, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/stand_demensions.csv")
 
 openxlsx::write.xlsx(
@@ -379,6 +396,10 @@ Completed_Screening_forcast$associated_stand <- with(
 
 Completed_Screening_forcast$RID <- seq.int(nrow(Completed_Screening_forcast))
 
+Completed_Screening_forcast$active <- -with(
+  Completed_Screening_forcast
+  , ifelse( standid <428,0,1))
+
 remove(screener_case_dup,screener_case_fact3,screener_case_fact4)
 
 fwrite(
@@ -618,6 +639,11 @@ Completed_sp_forcast$associated_stand <- with(
 
 
 Completed_sp_forcast$RID <- seq.int(nrow(Completed_sp_forcast))
+
+Completed_sp_forcast <- Completed_sp_forcast[,-10]
+Completed_sp_forcast$active <- -with(
+  Completed_sp_forcast
+  , ifelse( standid >428,1,0))
 
 remove(SPint_ri7,SPint_curr_case,SPint_case_fact, SPint_case_fact2, SPint_case_fact3,
        SPint_case_dup)
@@ -864,6 +890,10 @@ Completed_MEC_forcast$associated_stand <- with(
 #remove(screener_case_dup,screener_case_fact4,Completed_Screening_forcast,Completed_Screening_forcast1)
 
 Completed_MEC_forcast$RID <- seq.int(nrow(Completed_MEC_forcast))
+
+Completed_MEC_forcast$active <- -with(
+  Completed_MEC_forcast
+  , ifelse( standid_p <428,0,1))
 
 fwrite(Completed_MEC_forcast, file= 
 "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.csv")
