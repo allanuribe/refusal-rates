@@ -57,7 +57,7 @@ needed_stands <- c(284, 287, 291 ,297, 299, 304, 309, 312
 #' count screeners.  ri7 and current case are joined on current case, dwelling release 
 #' status has to be joined at the DU level.  
 
-stand_demensions <- read.csv(file = "L:/2021/DHANES dashboard/V0.5/Flat files/stand_demensions.csv")
+stand_demensions <- read.csv(file = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/imported data/stand_demensionsORIG.csv")
 
 real_stand_start_date <- dbGetQuery(
   westat_con, "SELECT stand_ID, stand_DT
@@ -399,6 +399,13 @@ Completed_Screening_forcast$RID <- seq.int(nrow(Completed_Screening_forcast))
 Completed_Screening_forcast$active <- -with(
   Completed_Screening_forcast
   , ifelse( standid <428,0,1))
+
+Completed_Screening_forcast <- Completed_Screening_forcast %>%
+  mutate(completed_screeners_max=max(cumulative_sum_complete_screenings))
+
+Completed_Screening_forcast$cumulative_proportion_complete <-with(
+  Completed_Screening_forcast,
+  cumulative_sum_complete_screenings/completed_screeners_max)
 
 remove(screener_case_dup,screener_case_fact3,screener_case_fact4)
 
