@@ -153,19 +153,19 @@ on A.standid=B.standid")
 
 
 
-fwrite(stand_demensions1, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/stand_demensions.csv")
+fwrite(stand_demensions1, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/stand_demensions.csv")
 
 openxlsx::write.xlsx(
   Completed_Screening_forcast, 
-  "C:/Users/qsj2/OneDrive - CDC/powerbisources/2021/responseRates/stand_demensions1.xlsx"
+  "C:/Users/qsj2/OneDrive - CDC/powerbisources/2021/responseRates/dev/stand_demensions1.xlsx"
   ,overwrite = T)
 
 stand_demensions1_W <- createWorkbook() 
 addWorksheet(stand_demensions1_W,"S1")
 writeDataTable(stand_demensions1_W,"S1",x=stand_demensions1)
-saveWorkbook(stand_demensions1_W, file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/stand_demensions1_W.xls',T)
+saveWorkbook(stand_demensions1_W, file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/stand_demensions1_W.xls',T)
 
-writexl::write_xlsx(list(stand_demensions1=stand_demensions1), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/stand_demensions1_W.xlsx")
+writexl::write_xlsx(list(stand_demensions1=stand_demensions1), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/stand_demensions1_W.xlsx")
 
 remove(stand_demensions,stand_demensions_dup,real_stand_start_date)
 
@@ -412,18 +412,18 @@ remove(screener_case_dup,screener_case_fact3,screener_case_fact4)
 fwrite(
   Completed_Screening_forcast, 
   file= 
-    "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast1.csv")
+    "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_Screening_forcast1.csv")
 
 openxlsx::write.xlsx(
   Completed_Screening_forcast, 
-  "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast1.xlsx"
+  "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_Screening_forcast1.xlsx"
   ,overwrite = T)
 Completed_Screening_forcast_SPL <- createWorkbook() 
 addWorksheet(Completed_Screening_forcast_SPL,"S1")
 writeDataTable(Completed_Screening_forcast_SPL,"S1",x=Completed_Screening_forcast)
-saveWorkbook(Completed_Screening_forcast_SPL, file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast_SPL.xlsx',T)
+saveWorkbook(Completed_Screening_forcast_SPL, file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_Screening_forcast_SPL.xlsx',T)
 
-writexl::write_xlsx(list(Completed_Screening_forcast=Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_Screening_forcast_W.xlsx")
+writexl::write_xlsx(list(Completed_Screening_forcast=Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_Screening_forcast_W.xlsx")
 
 
 R10_Completed_Screening_forcast <- Completed_Screening_forcast %>%
@@ -447,11 +447,11 @@ R50_Completed_Screening_forcast <- Completed_Screening_forcast %>%
   arrange(date_screener)%>%
   slice(1:(n()-50))
 
-writexl::write_xlsx(list(R10_Completed_Screening_forcast=R10_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R10_Completed_Screening_forcast_W.xlsx")
-writexl::write_xlsx(list(R20_Completed_Screening_forcast=R20_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R20_Completed_Screening_forcast_W.xlsx")
-writexl::write_xlsx(list(R30_Completed_Screening_forcast=R30_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R30_Completed_Screening_forcast_W.xlsx")
-writexl::write_xlsx(list(R40_Completed_Screening_forcast=R40_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R40_Completed_Screening_forcast_W.xlsx")
-writexl::write_xlsx(list(R50_Completed_Screening_forcast=R50_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R50_Completed_Screening_forcast_W.xlsx")
+writexl::write_xlsx(list(R10_Completed_Screening_forcast=R10_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/R10_Completed_Screening_forcast_W.xlsx")
+writexl::write_xlsx(list(R20_Completed_Screening_forcast=R20_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/R20_Completed_Screening_forcast_W.xlsx")
+writexl::write_xlsx(list(R30_Completed_Screening_forcast=R30_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/R30_Completed_Screening_forcast_W.xlsx")
+writexl::write_xlsx(list(R40_Completed_Screening_forcast=R40_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/R40_Completed_Screening_forcast_W.xlsx")
+writexl::write_xlsx(list(R50_Completed_Screening_forcast=R50_Completed_Screening_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/R50_Completed_Screening_forcast_W.xlsx")
 
 
 ####----
@@ -655,9 +655,9 @@ Completed_sp_forcast$active <- -with(
 remove(SPint_ri7,SPint_curr_case,SPint_case_fact, SPint_case_fact2, SPint_case_fact3,
        SPint_case_dup)
 
-fwrite(Completed_sp_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_sp_forcast.csv")
+fwrite(Completed_sp_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_sp_forcast.csv")
 
-openxlsx::write.xlsx(Completed_sp_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_sp_forcast.xlsx"
+openxlsx::write.xlsx(Completed_sp_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_sp_forcast.xlsx"
                      ,overwrite = T)
 
 
@@ -666,9 +666,9 @@ addWorksheet(Completed_sp_forcast_SPL,"S1")
 writeDataTable(Completed_sp_forcast_SPL,"S1",x=Completed_sp_forcast)
 saveWorkbook(
   Completed_sp_forcast_SPL
-  , file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_sp_forcast_SPL.xlsx',T)
+  , file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_sp_forcast_SPL.xlsx',T)
 
-writexl::write_xlsx(list(Completed_sp_forcast=Completed_sp_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_sp_forcast_W.xlsx")
+writexl::write_xlsx(list(Completed_sp_forcast=Completed_sp_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_sp_forcast_W.xlsx")
 
 
 
@@ -680,8 +680,8 @@ R20_Completed_sp_forcast <- Completed_sp_forcast %>%
   arrange(date_sp)%>%
   slice(1:(n()-20))
 
-writexl::write_xlsx(list(R10_Completed_sp_forcast=R10_Completed_sp_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R10_Completed_sp_forcast_W.xlsx")
-writexl::write_xlsx(list(R20_Completed_sp_forcast=R20_Completed_sp_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R20_Completed_sp_forcast_W.xlsx")
+writexl::write_xlsx(list(R10_Completed_sp_forcast=R10_Completed_sp_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/R10_Completed_sp_forcast_W.xlsx")
+writexl::write_xlsx(list(R20_Completed_sp_forcast=R20_Completed_sp_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/R20_Completed_sp_forcast_W.xlsx")
 
 
 #####
@@ -795,7 +795,9 @@ MEC_completes2$session_DT1 <-as.Date(MEC_completes2$session_DT)
 MEC_completes3 <- subset(MEC_completes2, !is.na(session_DT1),)
 MEC_completes4 <- MEC_completes3[which((MEC_completes3$session_DT1>0)),]
 
-MEC_completes5 <-  MEC_completes4 %>%
+MEC_completes4a<- MEC_completes4[which(MEC_completes3$MEC_examined==1),]
+
+MEC_completes5 <-  MEC_completes4a %>%
   group_by (standid_p) %>%
   complete(session_DT1 = seq.Date(min(as.Date(session_DT1)), 
                                    max(as.Date(session_DT1)), by=1)) %>%
@@ -903,11 +905,11 @@ Completed_MEC_forcast$active <- -with(
   , ifelse( standid_p <428,0,1))
 
 fwrite(Completed_MEC_forcast, file= 
-"C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.csv")
+"C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_MEC_forcast.csv")
 
 openxlsx::write.xlsx(
   Completed_MEC_forcast
-  , file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast.xlsx"
+  , file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_MEC_forcast.xlsx"
   ,overwrite = T)
 
 Completed_MEC_forcast_SPL <- createWorkbook() 
@@ -915,9 +917,9 @@ addWorksheet(Completed_MEC_forcast_SPL,"S1")
 writeDataTable(Completed_MEC_forcast_SPL,"S1",x=Completed_MEC_forcast)
 saveWorkbook(
   Completed_MEC_forcast_SPL
-  , file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast_SPL.xlsx',T)
+  , file = 'C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_MEC_forcast_SPL.xlsx',T)
 
-writexl::write_xlsx(list(Completed_MEC_forcast=Completed_MEC_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/Completed_MEC_forcast_W.xlsx")
+writexl::write_xlsx(list(Completed_MEC_forcast=Completed_MEC_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_MEC_forcast_W.xlsx")
 
 
 R10_Completed_MEC_forcast <- Completed_MEC_forcast %>%
@@ -928,6 +930,6 @@ R20_Completed_MEC_forcast <- Completed_MEC_forcast %>%
   arrange(date_MEC)%>%
   slice(1:(n()-20))
 
-writexl::write_xlsx(list(R10_Completed_MEC_forcast=R10_Completed_MEC_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R10_Completed_MEC_forcast_W.xlsx")
-writexl::write_xlsx(list(R20_Completed_MEC_forcast=R20_Completed_MEC_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/R20_Completed_MEC_forcast_W.xlsx")
+writexl::write_xlsx(list(R10_Completed_MEC_forcast=R10_Completed_MEC_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/R10_Completed_MEC_forcast_W.xlsx")
+writexl::write_xlsx(list(R20_Completed_MEC_forcast=R20_Completed_MEC_forcast), path = "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/R20_Completed_MEC_forcast_W.xlsx")
 
