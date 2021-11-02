@@ -303,15 +303,21 @@ screener_case_fact4 <-  screener_case_fact3 %>%
 screener_case_fact4$days_index <- (as.Date(screener_case_fact4$case_date_cc) 
                                    - as.Date(screener_case_fact4$stand_DT))
 
-screener_case_fact4$days_index <- ifelse(
-  screener_case_fact4$days_index <1,1,screener_case_fact4$days_index
-)
+#screener_case_fact4$days_index2 <- ifelse(
+#  screener_case_fact4$days_index <1,1,screener_case_fact4$days_index
+#)
 
 screener_case_fact4$week_index <- as.numeric(floor(screener_case_fact4$days_index/7))+1
+
+#screener_case_fact4$week_index2 <- as.numeric(floor(screener_case_fact4$days_index2/7))+1
 
 
 screener_case_fact4$month_index <- as.numeric(
   floor(screener_case_fact4$days_index/30.4375))+1
+
+#screener_case_fact4$month_index2 <- as.numeric(
+#  floor(screener_case_fact4$days_index2/30.4375))+1
+
 
 #  i think if i leave this out i can count how many dwellings were released 
 #screener_case_fact4$completed_screener <-ifelse(
