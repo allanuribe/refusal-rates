@@ -773,7 +773,9 @@ cat(MEC_date_query)
 
 MEC_date <- dbGetQuery(westat_con, MEC_date_query)
 
- 
+MEC_date <- distinct(MEC_date,SP_ID,.keep_all = T)
+
+
 
 #remove(MEC_completes1)
 
