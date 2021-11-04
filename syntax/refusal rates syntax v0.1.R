@@ -415,6 +415,8 @@ Completed_Screening_forcast$cumulative_proportion_complete <-with(
 
 remove(screener_case_dup,screener_case_fact3,screener_case_fact4)
 
+Completed_Screening_forcast$day_of_year<-yday(Completed_Screening_forcast$date_screener)
+Completed_Screening_forcast$week_of_year<-epiweek(Completed_Screening_forcast$date_screener)
 fwrite(
   Completed_Screening_forcast, 
   file= 
@@ -660,6 +662,9 @@ Completed_sp_forcast$active <- -with(
 
 remove(SPint_ri7,SPint_curr_case,SPint_case_fact, SPint_case_fact2, SPint_case_fact3,
        SPint_case_dup)
+
+Completed_sp_forcast$day_of_year<-yday(Completed_sp_forcast$date_sp)
+Completed_sp_forcast$week_of_year<-epiweek(Completed_sp_forcast$date_sp)
 
 fwrite(Completed_sp_forcast, file= "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_sp_forcast.csv")
 
@@ -911,6 +916,9 @@ Completed_MEC_forcast$RID <- seq.int(nrow(Completed_MEC_forcast))
 Completed_MEC_forcast$active <- -with(
   Completed_MEC_forcast
   , ifelse( standid_p <428,0,1))
+
+Completed_MEC_forcast$day_of_year<-yday(Completed_MEC_forcast$date_MEC)
+Completed_MEC_forcast$week_of_year<-epiweek(Completed_MEC_forcast$date_MEC)
 
 fwrite(Completed_MEC_forcast, file= 
 "C:/Users/qsj2/OneDrive - CDC/MY WORK/Projects/2021/Leading/refusal rates(Ryne)/Analysis/exported data/dev/Completed_MEC_forcast.csv")
