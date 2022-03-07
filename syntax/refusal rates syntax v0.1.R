@@ -1,9 +1,10 @@
 # SYNTAX NOTES ----
-#OBJECTIVE:  to create the tables needed to feed reletive longitudinal data to a powerBI 
+#OBJECTIVE:  to create the tables needed to feed relative longitudinal data to a powerBI 
 #dashboard for leadership to view the current completion rates
 #DATE FIRST CREATED 9/13/21
 #DATE UPDATED:10/12/21
-#CREATED BY: ALLAN URIBE 
+#CREATED BY: ALLAN URIBE
+# this is a change just for training purposes.  
 
 #PACKAGES NEEDED----
 install.packages("easypackages", repos='http://cran.us.r-project.org')
